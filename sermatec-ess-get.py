@@ -45,7 +45,7 @@ def get_sermatec_ess(tool, ip, cmd):
     try:
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     except Exception as err:
-        print(f"Unexpected {err=}, {type(err)=}")
+        print(f"sermatec-ess failed to run command \"{' '.join(cmd)}\" with error: {err=}, {type(err)=}")
         return ""
 
     if result.returncode == 0:
