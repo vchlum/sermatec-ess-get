@@ -9,20 +9,29 @@ import time
 from datetime import datetime
 
 def read_config(filename = 'config.json'):
-    with open(filename, 'r') as file:
-        config = json.load(file)
+    try:
+        with open(filename, 'r') as file:
+            config = json.load(file)
+    except Exception as err:
+        print(f"Error parsing json file {filename}: {err}")
+        return {}
     return config
 
 def append_line(filename, line):
-    with open(filename, 'a') as file:
-        file.write(line + '\n')
+    try:
+        with open(filename, 'a') as file:
+            file.write(line + '\n')
+    except Exception as err:
+        print(f"Error writing to file {filename}: {err}")
 
 def get_header(config):
     header = ["timestamp", "day", "time"]
+
     if "cmds" in config.keys():
         for cmd in config["cmds"].keys():
             for regex in config["cmds"][cmd]:
                 header.append(regex.split(":")[0])
+
     if "postprocessing" in config.keys():
         for pp in config["postprocessing"].keys():
             header.append(pp)
@@ -30,9 +39,9 @@ def get_header(config):
     return header
 
 
-def get_sermatec_ess(ip, cmd):
-    cmd = ['sermatec-ess', 'get', '--el', cmd]
-    
+def get_sermatec_ess(tool, ip, cmd):
+    cmd = [tool, '-i', ip, 'get', '--el', cmd]
+
     try:
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     except Exception as err:
@@ -71,13 +80,19 @@ if __name__ == '__main__':
         print(delimiter.join(header))
         exit(0)
 
-    
     ip = ""
     if "device" in config.keys():
         if "ip" in config["device"]:
             ip = config["device"]["ip"]
-
     if ip == "":
+        print("Error: config sermatec IP address first")
+        exit(1)
+
+    tool = ""
+    if "tool" in config.keys():
+        if "path" in config["tool"]:
+            tool = config["tool"]["path"]
+    if tool == "":
         print("Error: config sermatec IP address first")
         exit(1)
 
@@ -88,7 +103,7 @@ if __name__ == '__main__':
     line = [str(int(epoch_time)), human_date, human_time]
     if "cmds" in config.keys():
         for cmd in config["cmds"].keys():
-            result = get_sermatec_ess(ip, cmd)
+            result = get_sermatec_ess(tool, ip, cmd)
             for regex in config["cmds"][cmd]:
                 match = re.search(regex, result)
                 if match:
@@ -100,6 +115,7 @@ if __name__ == '__main__':
                     data[regex] = 0
                     print(F"{regex}: No match found")
     else:
+        print("Error: no commands configured")
         exit(1)
         
     if "postprocessing" in config.keys():
@@ -137,5 +153,5 @@ if __name__ == '__main__':
             header = get_header(config)
             append_line(filename, delimiter.join(header))
         append_line(filename, delimiter.join(line))
-    
-    print(delimiter.join(line))
+    else:
+        print("No file name configured")
