@@ -2,11 +2,13 @@
 
 import sys
 import os
-import subprocess
 import json
 import re
 import time
 from datetime import datetime
+
+sys.dont_write_bytecode = True
+import run
 
 def read_config(filename = 'config.json'):
     try:
@@ -38,20 +40,23 @@ def get_header(config):
 
     return header
 
-
 def get_sermatec_ess(tool, ip, cmd):
     cmd = [tool, '-i', ip, 'get', '--el', cmd]
 
-    try:
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    except Exception as err:
-        print(f"sermatec-ess failed to run command \"{' '.join(cmd)}\" with error: {err=}, {type(err)=}")
-        return ""
+    env = os.environ.copy()
+    env['RUST_BACKTRACE'] = '1' 
 
-    if result.returncode == 0:
-        return result.stdout
-    else:
-        print("Error executing command:", result.stderr)
+    try:
+        #res = run.run_with_subprocess(cmd, encoding="utf-8", env=env)
+        #res = run.run_with_tty(cmd, encoding="utf-8", env=env)
+        res = run.run_in_pty(cmd, encoding="utf-8", env=env)
+        if res.returncode != 0:
+            print(f"sermatec-ess failed to run command \"{' '.join(cmd)}\" return code {res.returncode}")
+            print(f"stdout: {res.stdout}")
+            print(f"stderr: {res.stderr}")
+        return res.stdout
+    except Exception as err:
+        print(f"sermatec-ess failed to run command \"{' '.join(cmd)}\" error: {err=}, {type(err)=}")
         return ""
 
 if __name__ == '__main__':
