@@ -27,16 +27,16 @@ def append_line(filename, line):
         print(f"Error writing to file {filename}: {err}")
 
 def get_header(config):
-    header = ["timestamp", "day", "time"]
+    header = [config["header"]["timestamp"], config["header"]["date"]]
 
     if "cmds" in config.keys():
         for cmd in config["cmds"].keys():
-            for regex in config["cmds"][cmd]:
-                header.append(regex.split(":")[0])
+            for id in config["cmds"][cmd].keys():
+                header.append(config["cmds"][cmd][id]["name"])
 
     if "postprocessing" in config.keys():
-        for pp in config["postprocessing"].keys():
-            header.append(pp)
+        for id in config["postprocessing"].keys():
+            header.append(config["postprocessing"][id]["name"])
 
     return header
 
@@ -102,22 +102,22 @@ if __name__ == '__main__':
         exit(1)
 
     epoch_time = time.time()
-    human_date = datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d')
-    human_time = datetime.fromtimestamp(epoch_time).strftime('%H:%M:%S')
+    human_date = datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d %H:%M:%S')
 
-    line = [str(int(epoch_time)), human_date, human_time]
+    line = [str(int(epoch_time)), human_date]
     if "cmds" in config.keys():
         for cmd in config["cmds"].keys():
             result = get_sermatec_ess(tool, ip, cmd)
-            for regex in config["cmds"][cmd]:
+            for id in config["cmds"][cmd].keys():
+                regex = config["cmds"][cmd][id]["regex"]
                 match = re.search(regex, result)
                 if match:
                     value = match.group(1)
                     line.append(value.replace(".", ","))
-                    data[regex] = float(value)
+                    data[id] = float(value)
                 else:
                     line.append("")
-                    data[regex] = 0
+                    data[id] = 0
                     print(F"{regex}: No match found")
     else:
         print("Error: no commands configured")
@@ -127,26 +127,26 @@ if __name__ == '__main__':
         for pp in config["postprocessing"].keys():
             if config["postprocessing"][pp]["op"] == "+":
                 value = 0
-                for item in config["postprocessing"][pp]["items"]:
-                    value += data[item]
+                for id in config["postprocessing"][pp]["ids"]:
+                    value += data[id]
                 line.append(str(value).replace(".", ","))
                 data[pp] = value
             elif config["postprocessing"][pp]["op"] == "-":
-                value = data[config["postprocessing"][pp]["items"][0]]
-                for item in config["postprocessing"][pp]["items"][1:]:
-                    value -= data[item]
+                value = data[config["postprocessing"][pp]["ids"][0]]
+                for id in config["postprocessing"][pp]["ids"][1:]:
+                    value -= data[id]
                 line.append(str(value).replace(".", ","))
                 data[pp] = value
             elif config["postprocessing"][pp]["op"] == "*":
-                value = data[config["postprocessing"][pp]["items"][0]]
-                for item in config["postprocessing"][pp]["items"][1:]:
-                    value *= data[item]
+                value = data[config["postprocessing"][pp]["ids"][0]]
+                for id in config["postprocessing"][pp]["ids"][1:]:
+                    value *= data[id]
                 line.append(str(value).replace(".", ","))
                 data[pp] = value
             elif config["postprocessing"][pp]["op"] == "/":
-                value = data[config["postprocessing"][pp]["items"][0]]
-                for item in config["postprocessing"][pp]["items"][1:]:
-                    value /= data[item]
+                value = data[config["postprocessing"][pp]["ids"][0]]
+                for id in config["postprocessing"][pp]["ids"][1:]:
+                    value /= data[id]
                 line.append(str(value).replace(".", ","))
                 data[pp] = value
             else:

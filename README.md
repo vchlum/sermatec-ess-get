@@ -21,18 +21,23 @@ The configuration file is a json file with the following structure:
     "tool": {"path": "/path/to/sermatec-ess"},
     "device": {"ip": "192.168.1.123"},
     "cmds": {
-        "9c": [
-            "line regex1 here: ([0-9\\.]+)",
-            "line regex2 here: ([0-9\\.]+)"
-        ]
+        "9c": {
+            "id1": {"name": "name 1", "regex":"regex1 ([0-9\\.]+)"},
+            "id2": {"name": "name 2", "regex":"regex2 ([0-9\\.]+)"},
+        }
     },
     "postprocessing": {
-        "Value regex1 + regex2": {"op": "+", "items": ["line regex1 here: ([0-9\\.]+)", "line regex2 here: ([0-9\\.]+)"]}
-        # "Value regex1 + regex2" can be used also in postprocessing in subsequent lines.
+        "id_r1": {"name": "name 3", "op": "+", "items": ["id1", "id2"]}
+        # "id_r1" can be used also in postprocessing in subsequent lines.
+        # available operators: +, -, *, /
     },
     "output": {
         "filename": "sermatec.csv",
         "delimiter": ";"
+    }
+    "header": {
+        "timestamp": "timestamp column name",
+        "date": "date column name"
     }
 }
 ```
