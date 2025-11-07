@@ -40,16 +40,25 @@ def get_header(config):
 
     return header
 
-def get_sermatec_ess(tool, ip, cmd):
+def get_sermatec_ess(tool, ip, cmd, attempt_delay = 0, num_attempts = 1):
     cmd = [tool, '-i', ip, 'get', '--el', cmd]
 
     env = os.environ.copy()
-    env['RUST_BACKTRACE'] = '1' 
+    #env['RUST_BACKTRACE'] = 'full'
 
     try:
-        #res = run.run_with_subprocess(cmd, encoding="utf-8", env=env)
-        #res = run.run_with_tty(cmd, encoding="utf-8", env=env)
-        res = run.run_in_pty(cmd, encoding="utf-8", env=env)
+        while num_attempts > 0:
+            if attempt_delay > 0:
+                time.sleep(attempt_delay)
+
+            #res = run.run_with_subprocess(cmd, encoding="utf-8", env=env)
+            res = run.run_with_tty(cmd, encoding="utf-8", env=env)
+            #res = run.run_in_pty(cmd, encoding="utf-8", env=env)
+
+            if res.returncode == 0:
+                break
+            num_attempts -= 1
+
         if res.returncode != 0:
             print(f"sermatec-ess failed to run command \"{' '.join(cmd)}\" return code {res.returncode}")
             print(f"stdout: {res.stdout}")
@@ -107,7 +116,15 @@ if __name__ == '__main__':
     line = [str(int(epoch_time)), human_date]
     if "cmds" in config.keys():
         for cmd in config["cmds"].keys():
-            result = get_sermatec_ess(tool, ip, cmd)
+            attempt_delay = 0
+            if (config["device"]["attempt_delay"]):
+                attempt_delay = config["device"]["attempt_delay"]
+            num_attempts = 1
+            if (config["device"]["num_attempts"]):
+                num_attempts = config["device"]["num_attempts"]
+
+            result = get_sermatec_ess(tool, ip, cmd, attempt_delay, num_attempts)
+
             for id in config["cmds"][cmd].keys():
                 regex = config["cmds"][cmd][id]["regex"]
                 match = re.search(regex, result)

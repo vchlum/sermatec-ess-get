@@ -19,7 +19,7 @@ The configuration file is a json file with the following structure:
 ```
 {
     "tool": {"path": "/path/to/sermatec-ess"},
-    "device": {"ip": "192.168.1.123"},
+    "device": {"ip": "192.168.1.123", "attempt_delay": 20, "num_attempts": 3},
     "cmds": {
         "9c": {
             "id1": {"name": "name 1", "regex":"regex1 ([0-9\\.]+)"},

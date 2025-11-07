@@ -1,6 +1,6 @@
 {
-    "tool": {"path": "sermatec-ess"},
-    "device": {"ip": "192.168.1.113"},
+    "tool": {"path": "/usr/bin/sermatec-ess"},
+    "device": {"ip": "192.168.1.113", "attempt_delay": 20, "num_attempts": 3},
     "cmds": {
         "99": {
             "PV daily power generation": {"name": "PV daily power generation", "regex":"PV daily power generation: ([0-9\\.]+)"},
