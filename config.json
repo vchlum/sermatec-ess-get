@@ -30,7 +30,7 @@
         "Spotreba domacnosti": {"name":"Spotreba domacnosti", "op": "+", "ids": ["Spotreba A", "Spotreba B", "Spotreba C"]}
     },
     "output": {
-        "filename": "sermatec.csv",
+        "filename": "/var/spool/sermatec/report.csv",
         "delimiter": ";"
     },
     "header": {

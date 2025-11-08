@@ -130,7 +130,7 @@ if __name__ == '__main__':
                 match = re.search(regex, result)
                 if match:
                     value = match.group(1)
-                    line.append(value.replace(".", ","))
+                    line.append(value)
                     data[id] = float(value)
                 else:
                     line.append("")
@@ -146,25 +146,25 @@ if __name__ == '__main__':
                 value = 0
                 for id in config["postprocessing"][pp]["ids"]:
                     value += data[id]
-                line.append(str(value).replace(".", ","))
+                line.append(str(value))
                 data[pp] = value
             elif config["postprocessing"][pp]["op"] == "-":
                 value = data[config["postprocessing"][pp]["ids"][0]]
                 for id in config["postprocessing"][pp]["ids"][1:]:
                     value -= data[id]
-                line.append(str(value).replace(".", ","))
+                line.append(str(value))
                 data[pp] = value
             elif config["postprocessing"][pp]["op"] == "*":
                 value = data[config["postprocessing"][pp]["ids"][0]]
                 for id in config["postprocessing"][pp]["ids"][1:]:
                     value *= data[id]
-                line.append(str(value).replace(".", ","))
+                line.append(str(value))
                 data[pp] = value
             elif config["postprocessing"][pp]["op"] == "/":
                 value = data[config["postprocessing"][pp]["ids"][0]]
                 for id in config["postprocessing"][pp]["ids"][1:]:
                     value /= data[id]
-                line.append(str(value).replace(".", ","))
+                line.append(str(value))
                 data[pp] = value
             else:
                 line.append("")
