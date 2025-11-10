@@ -2,24 +2,23 @@
     "tool": {"path": "/usr/bin/sermatec-ess"},
     "device": {"ip": "192.168.1.113", "attempt_delay": 20, "num_attempts": 3},
     "cmds": {
-        "99": {
-            "PV daily power generation": {"name": "PV daily power generation", "regex":"PV daily power generation: ([0-9\\.]+)"},
-            "Total photovoltaic power generation": {"name": "Total photovoltaic power generation", "regex":"Total photovoltaic power generation: ([0-9]+)"}
-        },
-        "9c": {
-            "total grid electricity purchase": {"name": "total grid electricity purchase", "regex":"total grid electricity purchase: ([0-9\\.]+)"}
+        "0a": {
+            "battery voltage": {"name": "battery voltage", "regex":"battery voltage: ([0-9\\.]+) V"},
+            "battery current": {"name": "battery current", "regex":"battery current: ([-0-9\\.]+) A"},
+            "Nabiti baterie": {"name": "Nabiti baterie", "regex":"battery soc: ([0-9\\.]+) %"},
+            "Zdravi baterie": {"name": "Zdravi baterie", "regex":"battery soh: ([0-9\\.]+) %"}
         },
         "0b": {
             "PV1 power": {"name": "PV1 power", "regex":"PV1 power: ([0-9\\.]+) W"},
             "PV2 power": {"name": "PV2 power", "regex":"PV2 power: ([0-9\\.]+) W"},
             "Grid-side active power": {"name": "Grid-side active power", "regex":"Grid-side active power: ([-0-9\\.]+) W"},
-            "DC powe": {"name": "DC power", "regex":"DC power: ([0-9\\.]+) W"},
+            "DC power": {"name": "DC power", "regex":"DC power: ([0-9\\.]+) W"},
             "Grid A phase voltage": {"name": "Grid A phase voltage", "regex":"Grid A phase voltage: ([0-9\\.]+) V"},
             "Grid A phase current": {"name": "Grid A phase current", "regex":"Grid A phase current: ([0-9\\.]+) A"},
             "Grid B phase voltage": {"name": "Grid B phase voltage", "regex":"Grid B phase voltage: ([0-9\\.]+) V"},
-            "Grid B phase current": {"name": "Grid B phase current", "regex":"Grid B phase current: ([0-9\\.]+) A"},
-            "Grid C phase voltage": {"name": "Grid C phase voltage", "regex":"Grid C phase voltage: ([0-9\\.]+) V"},
-            "Grid C phase current": {"name": "Grid C phase current", "regex":"Grid C phase current: ([0-9\\.]+) A"},
+            "Grid B phase current": {"name": "Grid B phase current", "regex":"Grid B-phase current: ([0-9\\.]+) A"},
+            "Grid C phase voltage": {"name": "Grid C phase voltage", "regex":"grid phase C voltage: ([0-9\\.]+) V"},
+            "Grid C phase current": {"name": "Grid C phase current", "regex":"grid phase C current: ([0-9\\.]+) A"},
             "load active power": {"name": "load active power", "regex":"load active power: ([0-9\\.]+) VA"}
         }
     },
@@ -27,10 +26,12 @@
         "Spotreba A": {"name":"Spotreba A", "op": "*", "ids": ["Grid A phase voltage", "Grid A phase current"]},
         "Spotreba B": {"name":"Spotreba B", "op": "*", "ids": ["Grid B phase voltage", "Grid B phase current"]},
         "Spotreba C": {"name":"Spotreba C", "op": "*", "ids": ["Grid C phase voltage", "Grid C phase current"]},
-        "Spotreba domacnosti": {"name":"Spotreba domacnosti", "op": "+", "ids": ["Spotreba A", "Spotreba B", "Spotreba C"]}
+        "Spotreba": {"name":"Spotreba", "op": "+", "ids": ["Spotreba A", "Spotreba B", "Spotreba C"]},
+        "Vyroba": {"name":"Vyroba", "op": "+", "ids": ["PV1 power", "PV2 power"]},
+        "Vykon baterie": {"name":"Vykon baterie", "op": "*", "ids": ["battery voltage", "battery current"]}
     },
     "output": {
-        "filename": "/var/spool/sermatec/report.csv",
+        "filename": "/var/spool/sermatec/15min.csv",
         "delimiter": ";"
     },
     "header": {
