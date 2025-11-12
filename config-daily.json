@@ -1,6 +1,6 @@
 {
     "tool": {"path": "/usr/bin/sermatec-ess"},
-    "device": {"ip": "192.168.1.113", "attempt_delay": 20, "num_attempts": 3},
+    "device": {"ip": "10.10.100.254", "attempt_delay": 30, "num_attempts": 4},
     "cmds": {
         "99": {
             "PV daily power generation": {"name": "PV daily power generation", "regex":"PV daily power generation: ([0-9\\.]+)"},
@@ -15,7 +15,8 @@
     },
     "output": {
         "filename": "/var/spool/sermatec/daily.csv",
-        "delimiter": ";"
+        "delimiter": ";",
+        "omit_line_on_fail": true
     },
     "header": {
         "timestamp": "timestamp",

@@ -85,9 +85,15 @@ if __name__ == '__main__':
     filename = ""
     data = {}
 
+    failer = False
+    omit_line_on_fail = False
+
     if "output" in config.keys():
         filename = config["output"]["filename"]
         delimiter = config["output"]["delimiter"]
+        if "omit_line_on_fail" in config["output"].keys():
+            omit_line_on_fail = config["output"]["omit_line_on_fail"]
+
     
     if "--header" in sys.argv:
         header = get_header(config)
@@ -135,6 +141,7 @@ if __name__ == '__main__':
                 else:
                     line.append("")
                     data[id] = 0
+                    failer = True
                     print(F"{regex}: No match found")
     else:
         print("Error: no commands configured")
@@ -168,7 +175,11 @@ if __name__ == '__main__':
                 data[pp] = value
             else:
                 line.append("")
+                failer = True
 
+    if failer and omit_line_on_fail:
+        print("Error: omitting line due to failure")
+        exit(1)
 
     if filename != "":
         if not os.path.exists(filename):
