@@ -40,6 +40,39 @@ def get_header(config):
 
     return header
 
+def check_valid(value, config_item):
+    if "valid_min" in config_item.keys():
+        if value < config_item["valid_min"]:
+            print(F"Value {config_item['name']} {value} too low")
+            return False
+
+    if "valid_max" in config_item.keys():
+        if value > config_item["valid_max"]:
+            print(F"Value {config_item['name']} {value} too height")
+            return False
+    return True
+
+def parse_result(result, cmd, line, data):
+    subline = {}
+    for id in cmd.keys():
+        regex = cmd[id]["regex"]
+        match = re.search(regex, result)
+        if match:
+            value = match.group(1)
+
+            if check_valid(float(value), cmd[id]):
+                subline[id] = value
+            else:
+                return False
+        else:
+            print(F"{regex}: No match found")
+            return False
+
+    for id in subline.keys():
+        line.append(subline[id])
+        data[id] = float(subline[id])
+    return True
+
 def get_sermatec_ess(tool, ip, cmd, attempt_delay = 0, num_attempts = 1):
     cmd = [tool, '-i', ip, 'get', '--el', cmd]
 
@@ -84,8 +117,6 @@ if __name__ == '__main__':
     delimiter = ";"
     filename = ""
     data = {}
-
-    failer = False
     omit_line_on_fail = False
 
     if "output" in config.keys():
@@ -119,6 +150,8 @@ if __name__ == '__main__':
     epoch_time = time.time()
     human_date = datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d %H:%M:%S')
 
+    print (f"Time is {human_date}")
+
     line = [str(int(epoch_time)), human_date]
     if "cmds" in config.keys():
         for cmd in config["cmds"].keys():
@@ -129,20 +162,17 @@ if __name__ == '__main__':
             if (config["device"]["num_attempts"]):
                 num_attempts = config["device"]["num_attempts"]
 
-            result = get_sermatec_ess(tool, ip, cmd, attempt_delay, num_attempts)
+            done = False
+            while not done and num_attempts > 0:
+                result = get_sermatec_ess(tool, ip, cmd, attempt_delay, num_attempts)
+                done = parse_result(result, config["cmds"][cmd], line, data)
+                num_attempts -= 1
 
-            for id in config["cmds"][cmd].keys():
-                regex = config["cmds"][cmd][id]["regex"]
-                match = re.search(regex, result)
-                if match:
-                    value = match.group(1)
-                    line.append(value)
-                    data[id] = float(value)
-                else:
+            if not done:
+                for item in config["cmds"][cmd].keys():
                     line.append("")
-                    data[id] = 0
-                    failer = True
-                    print(F"{regex}: No match found")
+                    data[item] = 0
+
     else:
         print("Error: no commands configured")
         exit(1)
@@ -175,9 +205,8 @@ if __name__ == '__main__':
                 data[pp] = value
             else:
                 line.append("")
-                failer = True
 
-    if failer and omit_line_on_fail:
+    if omit_line_on_fail and "" in line:
         print("Error: omitting line due to failure")
         exit(1)
 

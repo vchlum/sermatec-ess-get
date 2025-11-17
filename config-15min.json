@@ -1,16 +1,16 @@
 {
     "tool": {"path": "/usr/bin/sermatec-ess"},
-    "device": {"ip": "10.10.100.254", "attempt_delay": 30, "num_attempts": 4},
+    "device": {"ip": "10.10.100.254", "attempt_delay": 30, "num_attempts": 5},
     "cmds": {
         "0a": {
             "battery voltage": {"name": "battery voltage", "regex":"battery voltage: ([0-9\\.]+) V"},
             "battery current": {"name": "battery current", "regex":"battery current: ([-0-9\\.]+) A"},
-            "Nabiti baterie": {"name": "Nabiti baterie", "regex":"battery soc: ([0-9\\.]+) %"},
-            "Zdravi baterie": {"name": "Zdravi baterie", "regex":"battery soh: ([0-9\\.]+) %"}
+            "Nabiti baterie": {"name": "Nabiti baterie", "regex":"battery soc: ([0-9\\.]+) %",  "valid_min": 1, "valid_max": 100},
+            "Zdravi baterie": {"name": "Zdravi baterie", "regex":"battery soh: ([0-9\\.]+) %", "valid_min": 1, "valid_max": 100}
         },
         "0b": {
-            "PV1 power": {"name": "PV1 power", "regex":"PV1 power: ([0-9\\.]+) W"},
-            "PV2 power": {"name": "PV2 power", "regex":"PV2 power: ([0-9\\.]+) W"},
+            "PV1 power": {"name": "PV1 power", "regex":"PV1 power: ([0-9\\.]+) W", "valid_min": 0, "valid_max": 10000},
+            "PV2 power": {"name": "PV2 power", "regex":"PV2 power: ([0-9\\.]+) W", "valid_min": 0, "valid_max": 10000},
             "Grid-side active power": {"name": "Grid-side active power", "regex":"Grid-side active power: ([-0-9\\.]+) W"},
             "DC power": {"name": "DC power", "regex":"DC power: ([0-9\\.]+) W"},
             "Grid A phase voltage": {"name": "Grid A phase voltage", "regex":"Grid A phase voltage: ([0-9\\.]+) V"},
